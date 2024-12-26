@@ -12,10 +12,12 @@ project('stm32_test',
 compiler = meson.get_compiler('c')
 compiler_args = compiler.get_supported_arguments(['-pedantic',
                                                   '-ffreestanding',
-                                                  '-Wa,--fatal-warnings'],
+                                                  '-mcpu=cortex-m3',
+                                                  '-mthumb'],
                                                  checked: 'require')
 
-if not compiler.has_multi_link_arguments(['-nostdlib', '--entry=main'])
+if not compiler.has_multi_link_arguments(['-nostdlib',
+                                          '--entry=main'])
   error('Compiler for C does not support "-nostdlib"')
 endif
 
@@ -40,3 +42,11 @@ blink_elf = executable('blink.elf',
                        link_args: ['-T',
                                    meson.current_source_dir() + '/blink.ld'],
                        link_depends: 'blink.ld')
+
+openocd = find_program('openocd')
+flash = run_target('flash',
+                   command: [openocd,
+                             '-f', 'interface/stlink.cfg',
+                             '-f', 'target/stm32f1x.cfg',
+                             '-c', 'program blink.elf verify reset exit'],
+                   depends: blink_elf)

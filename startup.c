@@ -1,7 +1,6 @@
 #include <stdint.h>
 
 #define STM32F103xB
-#define __PROGRAM_START
 #include "stm32f1xx.h"
 
 #define SRAM_BASE       0x20000000UL
@@ -11,9 +10,9 @@
 
 #define ISR_V_SZ_W      67
 
-extern int main(void);
+extern void main(void) __attribute__((noreturn));
 
-void reset_handler(void);
+void reset_handler(void) __attribute__((noreturn));
 void default_handler(void) __attribute__((noreturn));
 void nmi_handler(void) __attribute__((weak, noreturn, alias("default_handler")));
 void hard_fault_handler(void) __attribute__((weak, noreturn, alias("default_handler")));
